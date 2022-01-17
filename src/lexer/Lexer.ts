@@ -50,15 +50,11 @@ export default class Lexer {
 
     private movePos(value: string) {
         const newLines: number = (value.match(/\n/) || []).length
+        const columns: number = value.substring(value.lastIndexOf("\n") + 1).length
 
-        if (newLines === 0) {
-            this.pos = {
-                ...this.pos,
-                column: this.pos.column + value.length
-            }
-            return
+        this.pos = {
+            line: this.pos.line + newLines,
+            column: newLines === 0 ? this.pos.column + columns : columns + 1
         }
-
-        //const symbols: number = value.match(/\n(.*)$/)
     }
 }
