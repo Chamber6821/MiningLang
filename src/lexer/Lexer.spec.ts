@@ -44,3 +44,23 @@ test("Match constant declaration", () => {
     expect(new Lexer(constantDeclaration).getAllTokens()).toEqual(expectedTokens)
 })
 
+test("Match math expression", () => {
+    const constantDeclaration = "15+4*A-C/(77%SomeConstant)"
+    const expectedTokens: Token[] = [
+        new Token(TokenType.Number, "15", { line: 1, column: 1 }),
+        new Token(TokenType.Plus, "+", { line: 1, column: 3 }),
+        new Token(TokenType.Number, "4", { line: 1, column: 4 }),
+        new Token(TokenType.Multiple, "*", { line: 1, column: 5 }),
+        new Token(TokenType.Name, "A", { line: 1, column: 6 }),
+        new Token(TokenType.Minus, "-", { line: 1, column: 7 }),
+        new Token(TokenType.Name, "C", { line: 1, column: 8 }),
+        new Token(TokenType.Divide, "/", { line: 1, column: 9 }),
+        new Token(TokenType.LPar, "(", { line: 1, column: 10 }),
+        new Token(TokenType.Number, "77", { line: 1, column: 11 }),
+        new Token(TokenType.Mod, "%", { line: 1, column: 13 }),
+        new Token(TokenType.Name, "SomeConstant", { line: 1, column: 14 }),
+        new Token(TokenType.RPar, ")", { line: 1, column: 26 })
+    ]
+
+    expect(new Lexer(constantDeclaration).getAllTokens()).toEqual(expectedTokens)
+})
