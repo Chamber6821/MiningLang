@@ -64,3 +64,20 @@ test("Match math expression", () => {
 
     expect(new Lexer(constantDeclaration).getAllTokens()).toEqual(expectedTokens)
 })
+
+test("Match spaces", () => {
+    const spaces = "   \t\v  \n  Name\n  ???Name2\n"
+    const expectedTokens: Token[] = [
+        new Token(TokenType.Space, "   \t\v  ", { line: 1, column: 1 }),
+        new Token(TokenType.Tie, "\n", { line: 1, column: 8 }),
+        new Token(TokenType.Space, "  ", { line: 2, column: 1 }),
+        new Token(TokenType.Name, "Name", { line: 2, column: 3 }),
+        new Token(TokenType.Tie, "\n", { line: 2, column: 7 }),
+        new Token(TokenType.Space, "  ", { line: 3, column: 1 }),
+        new Token(TokenType.Unknown, "???", { line: 3, column: 3 }),
+        new Token(TokenType.Name, "Name2", { line: 3, column: 6 }),
+        new Token(TokenType.Tie, "\n", { line: 3, column: 11 })
+    ]
+
+    expect(new Lexer(spaces).getAllTokens()).toEqual(expectedTokens)
+})
