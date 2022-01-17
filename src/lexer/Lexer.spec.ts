@@ -23,9 +23,9 @@ test("Match empty function", () => {
         new Token(TokenType.Function, "func", { line: 1, column: 1 }),
         new Token(TokenType.Space, " ", { line: 1, column: 5 }),
         new Token(TokenType.Name, "myFunc", { line: 1, column: 6 }),
-        new Token(TokenType.Space, " ", { line: 1, column: 11 }),
-        new Token(TokenType.LBrace, "{", { line: 1, column: 12 }),
-        new Token(TokenType.RBrace, "}", { line: 1, column: 13 })
+        new Token(TokenType.Space, " ", { line: 1, column: 12 }),
+        new Token(TokenType.LBrace, "{", { line: 1, column: 13 }),
+        new Token(TokenType.RBrace, "}", { line: 1, column: 14 })
     ]
 
     expect(new Lexer(emptyProcedure).getAllTokens()).toEqual(expectedTokens)
