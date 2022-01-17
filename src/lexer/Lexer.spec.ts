@@ -16,3 +16,17 @@ test("Match empty procedure", () => {
 
     expect(new Lexer(emptyProcedure).getAllTokens()).toEqual(expectedTokens)
 })
+
+test("Match constant declaration", () => {
+    const constantDeclaration = "const A=B"
+    const expectedTokens: Token[] = [
+        new Token(TokenType.Constant, "const", { line: 1, column: 1 }),
+        new Token(TokenType.Space, " ", { line: 1, column: 6 }),
+        new Token(TokenType.Name, "A", { line: 1, column: 7 }),
+        new Token(TokenType.Assign, "=", { line: 1, column: 8 }),
+        new Token(TokenType.Name, "B", { line: 1, column: 9 })
+    ]
+
+    expect(new Lexer(constantDeclaration).getAllTokens()).toEqual(expectedTokens)
+})
+
