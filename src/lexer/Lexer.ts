@@ -6,10 +6,27 @@ import Position  from "utils/Position"
 const matchPriority: Array<[TokenType, RegExp]> = [
 
     [TokenType.Procedure, /^void/],
-    [TokenType.Name, /^[a-zA-Z][a-zA-Z0-9]*/],
+    [TokenType.Function, /^func/],
+    [TokenType.Constant, /^const/],
+
     [TokenType.LBrace, /^{/],
     [TokenType.RBrace, /^}/],
-    [TokenType.Space, /^ +/]
+    [TokenType.LPar, /^\(/],
+    [TokenType.RPar, /^\)/],
+
+    [TokenType.Assign, /^=/],
+    [TokenType.Plus, /^\+/],
+    [TokenType.Minus, /^-/],
+    [TokenType.Multiple, /^\*/],
+    [TokenType.Divide, /^\//],
+    [TokenType.Mod, /^%/],
+
+    [TokenType.Name, /^[a-zA-Z][a-zA-Z0-9]*/],
+    [TokenType.Number, /^[0-9]+/],
+
+    [TokenType.Space, /^[ \t\v]+/],
+    [TokenType.Tie, /^\n/],
+    [TokenType.Unknown, /^[^\s\w]+/]
 
 ]
 
@@ -45,6 +62,7 @@ export default class Lexer {
             return token
         }
 
+        // must never be called, because something bullshit is the same as TokenType.Unknown
         throw new Error("No matches found")
     }
 
