@@ -9,4 +9,6 @@ export default class Scope implements Node {
     constructor(
         readonly statements: Statement[]
     ) {}
+
+    getAllNodes = (): Node[] => this.statements
 }

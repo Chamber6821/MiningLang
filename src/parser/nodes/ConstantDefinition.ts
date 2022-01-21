@@ -7,4 +7,6 @@ export default class ConstantDefinition implements Node {
         readonly name: string,
         readonly value: Operand
     ) {}
+
+    getAllNodes = (): Node[] => [this.value]
 }

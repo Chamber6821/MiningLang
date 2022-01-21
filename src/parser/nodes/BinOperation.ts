@@ -11,7 +11,7 @@ export enum BinOperator {
     Mod = "Mod"
 }
 
-export type Operand = Number | Constant | BinOperator
+export type Operand = Number | Constant | BinOperation
 
 export default class BinOperation implements Node {
     constructor(
@@ -19,4 +19,6 @@ export default class BinOperation implements Node {
         readonly left: Operand,
         readonly right: Operand
     ) {}
+
+    getAllNodes = (): Node[] => [this.left, this.right]
 }

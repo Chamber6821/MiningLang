@@ -7,4 +7,6 @@ export default class ProcedureDefinition implements Node {
         readonly name: string,
         readonly scope: Scope
     ) {}
+
+    getAllNodes = (): Node[] => [this.scope]
 }
