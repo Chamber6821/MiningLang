@@ -1,6 +1,6 @@
 import Constant from "parser/nodes/Constant"
 import Node     from "parser/nodes/Node"
-import Number   from "parser/nodes/Number"
+import Integer  from "parser/nodes/Integer"
 
 
 export enum BinOperator {
@@ -11,7 +11,7 @@ export enum BinOperator {
     Mod = "Mod"
 }
 
-export type Operand = Number | Constant | BinOperation
+export type Operand = Integer | Constant | BinOperation
 
 export default class BinOperation implements Node {
     constructor(
