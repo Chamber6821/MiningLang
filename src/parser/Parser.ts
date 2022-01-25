@@ -1,12 +1,21 @@
-import Scope from "parser/nodes/Scope"
-import Token from "tokens/Token"
+import Scope        from "parser/nodes/Scope"
+import ParsingError from "parser/ParsingError"
+import Collector     from "utils/Collector"
+import TokenProvider from "parser/TokenProvider"
 
 
 export default class Parser {
+    private readonly errorCollector = new Collector<ParsingError>()
+
     constructor(
-        private tokens: Token[]
+        private readonly provider: TokenProvider,
     ) {}
 
-    buildTree(): Scope {
+    get errors(): readonly ParsingError[] {
+        return this.errorCollector.collected
+    }
+
+    buildIncompleteTree(): Scope {
+        // TODO: Implement method
     }
 }
