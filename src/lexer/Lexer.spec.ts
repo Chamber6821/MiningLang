@@ -11,7 +11,8 @@ test("Match empty procedure", () => {
         new Token(TokenType.Name, "foo", { line: 1, column: 6 }),
         new Token(TokenType.Space, " ", { line: 1, column: 9 }),
         new Token(TokenType.LBrace, "{", { line: 1, column: 10 }),
-        new Token(TokenType.RBrace, "}", { line: 1, column: 11 })
+        new Token(TokenType.RBrace, "}", { line: 1, column: 11 }),
+        new Token(TokenType.EOF, "", { line: 1, column: 12 })
     ]
 
     expect(new Lexer(emptyProcedure).getAllTokens()).toEqual(expectedTokens)
@@ -25,7 +26,8 @@ test("Match empty function", () => {
         new Token(TokenType.Name, "myFunc", { line: 1, column: 6 }),
         new Token(TokenType.Space, " ", { line: 1, column: 12 }),
         new Token(TokenType.LBrace, "{", { line: 1, column: 13 }),
-        new Token(TokenType.RBrace, "}", { line: 1, column: 14 })
+        new Token(TokenType.RBrace, "}", { line: 1, column: 14 }),
+        new Token(TokenType.EOF, "", { line: 1, column: 15 })
     ]
 
     expect(new Lexer(emptyProcedure).getAllTokens()).toEqual(expectedTokens)
@@ -38,7 +40,8 @@ test("Match constant declaration", () => {
         new Token(TokenType.Space, " ", { line: 1, column: 6 }),
         new Token(TokenType.Name, "A", { line: 1, column: 7 }),
         new Token(TokenType.Assign, "=", { line: 1, column: 8 }),
-        new Token(TokenType.Name, "B", { line: 1, column: 9 })
+        new Token(TokenType.Name, "B", { line: 1, column: 9 }),
+        new Token(TokenType.EOF, "", { line: 1, column: 10 })
     ]
 
     expect(new Lexer(constantDeclaration).getAllTokens()).toEqual(expectedTokens)
@@ -59,7 +62,8 @@ test("Match math expression", () => {
         new Token(TokenType.Number, "77", { line: 1, column: 11 }),
         new Token(TokenType.Mod, "%", { line: 1, column: 13 }),
         new Token(TokenType.Name, "SomeConstant", { line: 1, column: 14 }),
-        new Token(TokenType.RPar, ")", { line: 1, column: 26 })
+        new Token(TokenType.RPar, ")", { line: 1, column: 26 }),
+        new Token(TokenType.EOF, "", { line: 1, column: 27 })
     ]
 
     expect(new Lexer(constantDeclaration).getAllTokens()).toEqual(expectedTokens)
@@ -76,7 +80,8 @@ test("Match spaces", () => {
         new Token(TokenType.Space, "  ", { line: 3, column: 1 }),
         new Token(TokenType.Unknown, "???", { line: 3, column: 3 }),
         new Token(TokenType.Name, "Name2", { line: 3, column: 6 }),
-        new Token(TokenType.Tie, "\n", { line: 3, column: 11 })
+        new Token(TokenType.Tie, "\n", { line: 3, column: 11 }),
+        new Token(TokenType.EOF, "", { line: 4, column: 1 })
     ]
 
     expect(new Lexer(spaces).getAllTokens()).toEqual(expectedTokens)
