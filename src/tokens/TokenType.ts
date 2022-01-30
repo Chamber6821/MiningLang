@@ -1,6 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 enum TokenType {
     Unknown = "Unknown", Space = "Space", Tie = "Tie",
+    EOF = "EOF",
 
     Procedure = "Procedure",
     Function = "Function",

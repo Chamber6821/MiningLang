@@ -46,6 +46,7 @@ export default class Lexer {
         while (this.code.length > 0) {
             yield this.mathToken()
         }
+        yield new Token(TokenType.EOF, "", this.pos)
     }
 
     private mathToken(): Token {
