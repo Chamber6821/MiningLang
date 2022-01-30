@@ -3,12 +3,14 @@ import TokenType from "tokens/TokenType"
 
 
 export default class TokenProvider {
+    private currentToken: number = 0
+
     constructor(
         private tokens: Token[]
     ) {}
 
     empty(): boolean {
-        // TODO: Implement method
+        return this.currentToken >= this.tokens.length
     }
 
     skipSpaces(): void {
@@ -16,14 +18,24 @@ export default class TokenProvider {
     }
 
     skip(...types: TokenType[]): void {
-        // TODO: Implement method
+        if (this.empty()) return
+        while (types.includes(this.next().type)) {
+            if (this.empty()) return
+        }
+        this.rollBack()
     }
 
     next(): Token {
-        // TODO: Implement method
+        if (this.empty()) throw new Error("Ran out of tokens")
+
+        const token = this.tokens[this.currentToken]
+        this.currentToken++
+        return token
     }
 
-    rollBack(): void {
-        // TODO: Implement method
+    rollBack(count = 1): void {
+        this.currentToken -= count
+
+        if (this.currentToken < 0) throw new Error("Ran out of tokens")
     }
 }
