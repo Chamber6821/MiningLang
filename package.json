@@ -13,8 +13,8 @@
   },
   "main": "./src/index.ts",
   "scripts": {
-    "serve": "nodemon -x \"yarn test\"",
-    "build": "tsc",
+    "clean": "shx rm -rf dist",
+    "build": "yarn clean && tsc --project tsconfig.build.json",
     "test": "jest"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
     "babel-jest": "^27.4.6",
     "jest": "^27.4.7",
     "nodemon": "^2.0.15",
+    "shx": "^0.3.4",
     "ts-jest": "^27.1.3"
   }
 }
