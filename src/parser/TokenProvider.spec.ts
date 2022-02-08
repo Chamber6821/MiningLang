@@ -1,17 +1,9 @@
 import TokenProvider from "parser/TokenProvider"
 import Token         from "tokens/Token"
 import TokenType     from "tokens/TokenType"
-import Position      from "utils/Position"
+import createToken   from "utils/createToken"
 import range         from "utils/range"
 
-
-function createPosition(line = 1, column = 1): Position {
-    return { line, column }
-}
-
-function createToken(type: TokenType, value = "", pos = createPosition()): Token {
-    return new Token(type, value, pos)
-}
 
 test("Is empty for empty list", () => {
     const instance = new TokenProvider([])
