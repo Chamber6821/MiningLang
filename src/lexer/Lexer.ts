@@ -3,7 +3,7 @@ import TokenType from "tokens/TokenType"
 import Position  from "utils/Position"
 
 
-const matchPriority: Array<[TokenType, RegExp]> = [
+const matchPriority = [
 
     [TokenType.Procedure, /^void/],
     [TokenType.Function, /^func/],
@@ -28,15 +28,12 @@ const matchPriority: Array<[TokenType, RegExp]> = [
     [TokenType.Tie, /^\n/],
     [TokenType.Unknown, /^[^\s\w]+/]
 
-]
+] as const
 
 export default class Lexer {
-    private code: string
-    private pos: Position = { line: 1, column: 1 }
+    private pos = 0
 
-    constructor(code: string) {
-        this.code = code
-    }
+    constructor(private code: string) {}
 
     getAllTokens(): Token[] {
         return [...this.tokenMatcher()]
@@ -46,7 +43,7 @@ export default class Lexer {
         while (this.code.length > 0) {
             yield this.mathToken()
         }
-        yield new Token(TokenType.EOF, "", this.pos)
+        yield new Token(TokenType.EOF, "", this.movePosition(0))
     }
 
     private mathToken(): Token {
@@ -57,23 +54,16 @@ export default class Lexer {
 
             this.code = this.code.substring(value.length)
 
-            const token = new Token(type, value, this.pos)
-            this.movePos(value)
-
-            return token
+            return new Token(type, value, this.movePosition(value.length))
         }
 
         // must never be called, because something bullshit is the same as TokenType.Unknown
         throw new Error("No matches found")
     }
 
-    private movePos(value: string) {
-        const newLines: number = (value.match(/\n/) || []).length
-        const columns: number = value.substring(value.lastIndexOf("\n") + 1).length
-
-        this.pos = {
-            line: this.pos.line + newLines,
-            column: newLines === 0 ? this.pos.column + columns : columns + 1
-        }
+    private movePosition(length: number): Position {
+        const oldPos = this.pos
+        this.pos += length
+        return new Position(oldPos, length)
     }
 }
