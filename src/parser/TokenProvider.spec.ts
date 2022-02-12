@@ -1,8 +1,8 @@
 import TokenProvider from "parser/TokenProvider"
 import Token         from "tokens/Token"
 import TokenType     from "tokens/TokenType"
-import createToken   from "utils/createToken"
 import range         from "utils/range"
+import TokenFactory  from "utils/TokenFactory"
 
 
 test("Is empty for empty list", () => {
@@ -12,19 +12,21 @@ test("Is empty for empty list", () => {
 })
 
 test("Is empty for no empty list", () => {
-    const tokens = [createToken(TokenType.Number)]
+    const factory = new TokenFactory()
+    const tokens = [factory.create(TokenType.Number)]
     const instance = new TokenProvider(tokens)
 
     expect(instance.empty()).toBe(false)
 })
 
 describe("Get tokens", () => {
+    const factory = new TokenFactory()
     const tokens = [
-        createToken(TokenType.Space),
-        createToken(TokenType.Number),
-        createToken(TokenType.Tie),
-        createToken(TokenType.Name),
-        createToken(TokenType.EOF)
+        factory.create(TokenType.Space),
+        factory.create(TokenType.Number),
+        factory.create(TokenType.Tie),
+        factory.create(TokenType.Name),
+        factory.create(TokenType.EOF)
     ]
 
     test("Throw exception if ran out of tokens", () => {
@@ -52,12 +54,13 @@ describe("Roll back tokens", () => {
     type Index = number
     type Case = [Index, Index, Token]
 
+    const factory = new TokenFactory()
     const tokens = [
-        createToken(TokenType.Space),
-        createToken(TokenType.Number),
-        createToken(TokenType.Tie),
-        createToken(TokenType.Name),
-        createToken(TokenType.EOF)
+        factory.create(TokenType.Space),
+        factory.create(TokenType.Number),
+        factory.create(TokenType.Tie),
+        factory.create(TokenType.Name),
+        factory.create(TokenType.EOF)
     ]
 
     test("Throw exception if ran out of tokens", () => {
@@ -93,17 +96,18 @@ describe("Roll back tokens", () => {
 })
 
 describe("Skip tokens", () => {
+    const factory = new TokenFactory()
     const tokens = [
-        createToken(TokenType.Number),
-        createToken(TokenType.Tie),
-        createToken(TokenType.Tie),
-        createToken(TokenType.Tie),
-        createToken(TokenType.Space),
-        createToken(TokenType.Constant),
-        createToken(TokenType.Space),
-        createToken(TokenType.Procedure),
-        createToken(TokenType.Tie),
-        createToken(TokenType.EOF),
+        factory.create(TokenType.Number),
+        factory.create(TokenType.Tie),
+        factory.create(TokenType.Tie),
+        factory.create(TokenType.Tie),
+        factory.create(TokenType.Space),
+        factory.create(TokenType.Constant),
+        factory.create(TokenType.Space),
+        factory.create(TokenType.Procedure),
+        factory.create(TokenType.Tie),
+        factory.create(TokenType.EOF),
     ]
 
     test("Skip some tokens", () => {
