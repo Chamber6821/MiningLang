@@ -1,98 +1,60 @@
-import Lexer        from "lexer/Lexer"
-import TokenType    from "tokens/TokenType"
-import TokenFactory from "utils/TokenFactory"
+import UnknownToken         from "exceptions/UnknownToken"
+import DefaultTokenFactory  from "lexer/DefaultTokenFactory"
+import Lexer, { MatchCase } from "lexer/Lexer"
+import EqualsMatcher        from "lexer/matchers/EqualsMatcher"
+import RegexpMatcher        from "lexer/matchers/RegexpMatcher"
 
 
-test("Match empty procedure", () => {
-    const emptyProcedure = "void foo {}"
+enum TestType { Word = "Word", Number = "Number", VerticalLine = "VerticalLine", Space = "Space", EOF = "EOF" }
 
-    const factory = new TokenFactory()
+const pipe = [
+    [TestType.Word, new RegexpMatcher(/^[a-z]+/i)],
+    [TestType.Number, new RegexpMatcher(/^\d+/)],
+    [TestType.VerticalLine, new EqualsMatcher("|")],
+    [TestType.Space, new RegexpMatcher(/^\s+/)]
+] as MatchCase<TestType>[]
+
+test("Tokenize", () => {
+    const fragment = "44 is a 2 digit number"
+
+    const helpFactory = new DefaultTokenFactory<TestType>()
     const expected = [
-        factory.create(TokenType.Procedure, "void"),
-        factory.create(TokenType.Space, " "),
-        factory.create(TokenType.Name, "foo"),
-        factory.create(TokenType.Space, " "),
-        factory.create(TokenType.LBrace, "{"),
-        factory.create(TokenType.RBrace, "}"),
-        factory.create(TokenType.EOF, "")
+        helpFactory.create(TestType.Number, "44"),
+        helpFactory.create(TestType.Space, " "),
+        helpFactory.create(TestType.Word, "is"),
+        helpFactory.create(TestType.Space, " "),
+        helpFactory.create(TestType.Word, "a"),
+        helpFactory.create(TestType.Space, " "),
+        helpFactory.create(TestType.Number, "2"),
+        helpFactory.create(TestType.Space, " "),
+        helpFactory.create(TestType.Word, "digit"),
+        helpFactory.create(TestType.Space, " "),
+        helpFactory.create(TestType.Word, "number"),
+        helpFactory.create(TestType.EOF)
     ]
 
-    expect(new Lexer(emptyProcedure).getAllTokens()).toEqual(expected)
+    const lexer = new Lexer(TestType.EOF, pipe)
+    expect(lexer.tokenize(fragment))
+        .toEqual(expected)
 })
 
-test("Match empty function", () => {
-    const emptyProcedure = "func myFunc {}"
+test("Tokenize with offset", () => {
+    const fragment = "42 is the answer to all questions"
+    const offset = 10
+    const expectedPosition = 10
 
-    const factory = new TokenFactory()
-    const expected = [
-        factory.create(TokenType.Function, "func"),
-        factory.create(TokenType.Space, " "),
-        factory.create(TokenType.Name, "myFunc"),
-        factory.create(TokenType.Space, " "),
-        factory.create(TokenType.LBrace, "{"),
-        factory.create(TokenType.RBrace, "}"),
-        factory.create(TokenType.EOF, "")
-    ]
+    const lexer = new Lexer(TestType.EOF, pipe)
+    const tokens = lexer.tokenize(fragment, new DefaultTokenFactory(offset))
 
-    expect(new Lexer(emptyProcedure).getAllTokens()).toEqual(expected)
+    expect(tokens[0].pos.index)
+        .toEqual(expectedPosition)
 })
 
-test("Match constant declaration", () => {
-    const constantDeclaration = "const A=B"
+test("Throw if no match found", () => {
+    const fragment = "simple word ? <-- unknown token"
 
-    const factory = new TokenFactory()
-    const expected = [
-        factory.create(TokenType.Constant, "const"),
-        factory.create(TokenType.Space, " "),
-        factory.create(TokenType.Name, "A"),
-        factory.create(TokenType.Assign, "="),
-        factory.create(TokenType.Name, "B"),
-        factory.create(TokenType.EOF, "")
-    ]
+    const lexer = new Lexer(TestType.EOF, pipe)
 
-    expect(new Lexer(constantDeclaration).getAllTokens()).toEqual(expected)
-})
-
-test("Match math expression", () => {
-    const constantDeclaration = "15+4*A-C/(77%SomeConstant)"
-
-    const factory = new TokenFactory()
-    const expected = [
-        factory.create(TokenType.Number, "15"),
-        factory.create(TokenType.Plus, "+"),
-        factory.create(TokenType.Number, "4"),
-        factory.create(TokenType.Multiple, "*"),
-        factory.create(TokenType.Name, "A"),
-        factory.create(TokenType.Minus, "-"),
-        factory.create(TokenType.Name, "C"),
-        factory.create(TokenType.Divide, "/"),
-        factory.create(TokenType.LPar, "("),
-        factory.create(TokenType.Number, "77"),
-        factory.create(TokenType.Mod, "%"),
-        factory.create(TokenType.Name, "SomeConstant"),
-        factory.create(TokenType.RPar, ")"),
-        factory.create(TokenType.EOF, "")
-    ]
-
-    expect(new Lexer(constantDeclaration).getAllTokens()).toEqual(expected)
-})
-
-test("Match spaces", () => {
-    const spaces = "   \t\v  \n  Name\n  ???Name2\n"
-
-    const factory = new TokenFactory()
-    const expected = [
-        factory.create(TokenType.Space, "   \t\v  "),
-        factory.create(TokenType.Tie, "\n"),
-        factory.create(TokenType.Space, "  "),
-        factory.create(TokenType.Name, "Name"),
-        factory.create(TokenType.Tie, "\n"),
-        factory.create(TokenType.Space, "  "),
-        factory.create(TokenType.Unknown, "???"),
-        factory.create(TokenType.Name, "Name2"),
-        factory.create(TokenType.Tie, "\n"),
-        factory.create(TokenType.EOF, "")
-    ]
-
-    expect(new Lexer(spaces).getAllTokens()).toEqual(expected)
+    expect(() => lexer.tokenize(fragment))
+        .toThrow(UnknownToken)
 })

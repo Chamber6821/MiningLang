@@ -1,69 +1,42 @@
-import Token     from "tokens/Token"
-import TokenType from "tokens/TokenType"
-import Position  from "utils/Position"
+import UnknownToken        from "exceptions/UnknownToken"
+import DefaultTokenFactory from "lexer/DefaultTokenFactory"
+import Matcher             from "lexer/matchers/RegexpMatcher"
+import Token               from "lexer/Token"
+import TokenFactory        from "lexer/TokenFactory"
 
 
-const matchPriority = [
+export type MatchCase<TokenType> = readonly [TokenType, Matcher]
 
-    [TokenType.Procedure, /^void/],
-    [TokenType.Function, /^func/],
-    [TokenType.Constant, /^const/],
+export default class Lexer<TokenType = string> {
+    constructor(
+        readonly eof: TokenType,
+        readonly matchPipe: MatchCase<TokenType>[]
+    ) {}
 
-    [TokenType.LBrace, /^{/],
-    [TokenType.RBrace, /^}/],
-    [TokenType.LPar, /^\(/],
-    [TokenType.RPar, /^\)/],
-
-    [TokenType.Assign, /^=/],
-    [TokenType.Plus, /^\+/],
-    [TokenType.Minus, /^-/],
-    [TokenType.Multiple, /^\*/],
-    [TokenType.Divide, /^\//],
-    [TokenType.Mod, /^%/],
-
-    [TokenType.Name, /^[a-zA-Z][a-zA-Z0-9]*/],
-    [TokenType.Number, /^[0-9]+/],
-
-    [TokenType.Space, /^[ \t\v]+/],
-    [TokenType.Tie, /^\n/],
-    [TokenType.Unknown, /^[^\s\w]+/]
-
-] as const
-
-export default class Lexer {
-    private pos = 0
-
-    constructor(private code: string) {}
-
-    getAllTokens(): Token[] {
-        return [...this.tokenMatcher()]
+    tokenize(code: string, factory: TokenFactory<TokenType> = new DefaultTokenFactory()): Token<TokenType>[] {
+        return [...this.tokenMatcher(code, factory)]
     }
 
-    private* tokenMatcher(): Generator<Token> {
-        while (this.code.length > 0) {
-            yield this.mathToken()
-        }
-        yield new Token(TokenType.EOF, "", this.movePosition(0))
-    }
+    private* tokenMatcher(code: string, factory: TokenFactory<TokenType>): Generator<Token<TokenType>> {
+        const startIndex = factory.index
 
-    private mathToken(): Token {
-        for (const [type, regexp] of matchPriority) {
-            const match = this.code.match(regexp)
-            if (match === null) continue
-            const value = match[0]
-
-            this.code = this.code.substring(value.length)
-
-            return new Token(type, value, this.movePosition(value.length))
+        while (factory.index - startIndex < code.length) {
+            yield this.mathToken(code, factory, startIndex)
         }
 
-        // must never be called, because something bullshit is the same as TokenType.Unknown
-        throw new Error("No matches found")
+        yield factory.create(this.eof)
     }
 
-    private movePosition(length: number): Position {
-        const oldPos = this.pos
-        this.pos += length
-        return new Position(oldPos, length)
+    private mathToken(code: string, factory: TokenFactory<TokenType>, offset: number): Token<TokenType> {
+        const fragment = code.substring(factory.index - offset)
+
+        for (const [type, matcher] of this.matchPipe) {
+            const value = matcher.match(fragment)
+            if (value === null) continue
+
+            return factory.create(type, value)
+        }
+
+        throw new UnknownToken(fragment, factory.index)
     }
 }
