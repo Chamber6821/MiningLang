@@ -117,26 +117,16 @@ describe("Skip tokens", () => {
         expect(instance.next()).toBe(tokens[7])
     })
 
-    test("Skip spaces", () => {
-        const instance = new TokenProvider(tokens)
-
-        instance.skipSpaces()
-        expect(instance.next()).toBe(tokens[0])
-
-        instance.skipSpaces()
-        expect(instance.next()).toBe(tokens[5])
-    })
-
     test("If there is nothing to skip", () => {
         const instance = new TokenProvider(tokens)
 
-        expect(() => instance.skipSpaces()).not.toThrow()
+        expect(() => instance.skip(TokenType.Tie)).not.toThrow()
     })
 
     test("If provider is empty", () => {
         const instance = new TokenProvider([])
 
-        expect(() => instance.skipSpaces()).not.toThrow()
+        expect(() => instance.skip(TokenType.Tie)).not.toThrow()
     })
 
     test("If all tokens was skipped", () => {
@@ -144,6 +134,7 @@ describe("Skip tokens", () => {
 
         instance.skip(...tokens.map(t => t.type))
 
+        expect(instance.empty()).toBe(true)
         expect(() => instance.next()).toThrow()
     })
 })

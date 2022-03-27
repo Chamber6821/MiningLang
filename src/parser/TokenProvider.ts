@@ -1,20 +1,15 @@
-import Token     from "tokens/Token"
-import TokenType from "tokens/TokenType"
+import Token from "lexer/Token"
 
 
-export default class TokenProvider {
+export default class TokenProvider<TokenType> {
     private currentToken: number = 0
 
     constructor(
-        private tokens: Token[]
+        private tokens: Token<TokenType>[]
     ) {}
 
     empty(): boolean {
         return this.currentToken >= this.tokens.length
-    }
-
-    skipSpaces(): void {
-        this.skip(TokenType.Space, TokenType.Tie)
     }
 
     skip(...types: TokenType[]): void {
@@ -25,7 +20,7 @@ export default class TokenProvider {
         this.rollBack()
     }
 
-    next(): Token {
+    next(): Token<TokenType> {
         if (this.empty()) throw new Error("Ran out of tokens")
 
         const token = this.tokens[this.currentToken]
