@@ -138,3 +138,24 @@ describe("Skip tokens", () => {
         expect(() => instance.next()).toThrow()
     })
 })
+
+test("Get number of viewed", () => {
+    const factory = new TokenFactory()
+    const tokens = [
+        factory.create(TokenType.Number),
+        factory.create(TokenType.Space),
+        factory.create(TokenType.Name),
+        factory.create(TokenType.EOF)
+    ]
+    const provider = new TokenProvider(tokens)
+
+    expect(provider.viewed).toBe(0)
+    provider.next()
+    expect(provider.viewed).toBe(1)
+    provider.next()
+    expect(provider.viewed).toBe(2)
+    provider.rollBack()
+    expect(provider.viewed).toBe(1)
+    provider.rollBack()
+    expect(provider.viewed).toBe(0)
+})

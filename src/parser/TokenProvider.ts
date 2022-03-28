@@ -8,6 +8,10 @@ export default class TokenProvider<TokenType> {
         private tokens: Token<TokenType>[]
     ) {}
 
+    get viewed(): number {
+        return this.currentToken
+    }
+
     empty(): boolean {
         return this.currentToken >= this.tokens.length
     }
