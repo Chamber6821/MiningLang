@@ -1,9 +1,18 @@
-import TokenProvider from "parser/TokenProvider"
-import Token         from "tokens/Token"
-import TokenType     from "tokens/TokenType"
-import range         from "utils/range"
-import TokenFactory  from "utils/TokenFactory"
+import DefaultTokenFactory from "lexer/DefaultTokenFactory"
+import Token               from "lexer/Token"
+import TokenProvider       from "parser/TokenProvider"
+import range               from "utils/range"
 
+
+enum TokenType {
+    Constant = "Constant",
+    Procedure = "Procedure",
+    Number = "Number",
+    Name = "Name",
+    Space = "Space",
+    Tie = "Tie",
+    EOF = "EOF"
+}
 
 test("Is empty for empty list", () => {
     const instance = new TokenProvider([])
@@ -12,7 +21,7 @@ test("Is empty for empty list", () => {
 })
 
 test("Is empty for no empty list", () => {
-    const factory = new TokenFactory()
+    const factory = new DefaultTokenFactory()
     const tokens = [factory.create(TokenType.Number)]
     const instance = new TokenProvider(tokens)
 
@@ -20,7 +29,7 @@ test("Is empty for no empty list", () => {
 })
 
 describe("Get tokens", () => {
-    const factory = new TokenFactory()
+    const factory = new DefaultTokenFactory()
     const tokens = [
         factory.create(TokenType.Space),
         factory.create(TokenType.Number),
@@ -33,8 +42,9 @@ describe("Get tokens", () => {
         const instance = new TokenProvider(tokens)
 
         // skip all tokens
-        for (let t in tokens)
+        for (let t in tokens) {
             instance.next()
+        }
 
         expect(() => instance.next()).toThrow(Error)
     })
@@ -42,8 +52,9 @@ describe("Get tokens", () => {
     test.each([...tokens.keys()])("Get %ith token", (index: number) => {
         const instance = new TokenProvider(tokens)
 
-        for (let _ of range(0, index))
+        for (let _ of range(0, index)) {
             instance.next()
+        }
 
         const token = instance.next()
         expect(token).toBe(tokens[index])
@@ -52,9 +63,9 @@ describe("Get tokens", () => {
 
 describe("Roll back tokens", () => {
     type Index = number
-    type Case = [Index, Index, Token]
+    type Case = [Index, Index, Token<TokenType>]
 
-    const factory = new TokenFactory()
+    const factory = new DefaultTokenFactory<TokenType>()
     const tokens = [
         factory.create(TokenType.Space),
         factory.create(TokenType.Number),
@@ -77,7 +88,7 @@ describe("Roll back tokens", () => {
     // ]
     function createCasesForIndex(index: Index): Case[] {
         return Array.from({ length: index - 1 }, (_, i) => i + 1)
-            .map(i => [index, i, tokens[index - i]])
+                    .map(i => [index, i, tokens[index - i]])
     }
 
     const rawCases = [...range(0, tokens.length + 1)].map(createCasesForIndex)
@@ -86,8 +97,9 @@ describe("Roll back tokens", () => {
     test.each(mergedCases)("Skip %i and roll back %i tokens", (skipCount, rollBackCount, expectedToken) => {
         const instance = new TokenProvider(tokens)
 
-        for (let _ of range(0, skipCount))
+        for (let _ of range(0, skipCount)) {
             instance.next()
+        }
 
         instance.rollBack(rollBackCount)
 
@@ -96,7 +108,7 @@ describe("Roll back tokens", () => {
 })
 
 describe("Skip tokens", () => {
-    const factory = new TokenFactory()
+    const factory = new DefaultTokenFactory()
     const tokens = [
         factory.create(TokenType.Number),
         factory.create(TokenType.Tie),
@@ -107,7 +119,7 @@ describe("Skip tokens", () => {
         factory.create(TokenType.Space),
         factory.create(TokenType.Procedure),
         factory.create(TokenType.Tie),
-        factory.create(TokenType.EOF),
+        factory.create(TokenType.EOF)
     ]
 
     test("Skip some tokens", () => {
@@ -140,7 +152,7 @@ describe("Skip tokens", () => {
 })
 
 test("Get number of viewed", () => {
-    const factory = new TokenFactory()
+    const factory = new DefaultTokenFactory()
     const tokens = [
         factory.create(TokenType.Number),
         factory.create(TokenType.Space),
