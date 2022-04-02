@@ -1,3 +1,3 @@
 export default interface Node {
-    getAllNodes(): Node[]
+    get nodes(): Node[]
 }
