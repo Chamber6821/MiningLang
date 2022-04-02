@@ -1,6 +1,6 @@
-import Token         from "lexer/Token"
-import Node          from "parser/nodes/Node"
-import ParsingError  from "parser/ParsingError"
+import Token        from "lexer/Token"
+import Node         from "parser/nodes/Node"
+import ParsingError from "parser/ParsingError"
 import Pattern       from "parser/Pattern"
 import TokenProvider from "parser/TokenProvider"
 
