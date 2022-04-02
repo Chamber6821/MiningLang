@@ -1,7 +1,7 @@
 import Token        from "lexer/Token"
 import Node         from "parser/nodes/Node"
-import ParsingError from "parser/ParsingError"
-import Pattern       from "parser/Pattern"
+import ParsingError from "parser/nodes/ParsingError"
+import Pattern      from "parser/Pattern"
 import TokenProvider from "parser/TokenProvider"
 
 

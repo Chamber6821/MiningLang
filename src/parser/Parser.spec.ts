@@ -1,9 +1,9 @@
 import DefaultTokenFactory from "lexer/DefaultTokenFactory"
 import Token  from "lexer/Token"
 import Node   from "parser/nodes/Node"
-import Parser from "parser/Parser"
-import ParsingError        from "parser/ParsingError"
-import Pattern             from "parser/Pattern"
+import Parser       from "parser/Parser"
+import ParsingError from "parser/nodes/ParsingError"
+import Pattern      from "parser/Pattern"
 
 
 enum TokenType {

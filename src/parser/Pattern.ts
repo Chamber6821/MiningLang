@@ -1,6 +1,6 @@
 import Node   from "parser/nodes/Node"
-import Parser from "parser/Parser"
-import ParsingError  from "parser/ParsingError"
+import Parser        from "parser/Parser"
+import ParsingError  from "parser/nodes/ParsingError"
 import TokenProvider from "parser/TokenProvider"
 
 
