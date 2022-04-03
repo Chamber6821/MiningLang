@@ -7,6 +7,6 @@ import TokenProvider from "parser/TokenProvider"
 export default class Pattern<T> {
     constructor(
         readonly name: string,
-        readonly parseFunction: (parser: Parser<T>, provider: TokenProvider<T>) => Node | ParsingError<T>
+        readonly parseFunction: (parser: Parser<T>) => Node | ParsingError<T>
     ) {}
 }

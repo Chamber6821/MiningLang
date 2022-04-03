@@ -1,9 +1,9 @@
 import DefaultTokenFactory from "lexer/DefaultTokenFactory"
-import Token  from "lexer/Token"
-import Node   from "parser/nodes/Node"
-import Parser       from "parser/Parser"
-import ParsingError from "parser/nodes/ParsingError"
-import Pattern      from "parser/Pattern"
+import Token               from "lexer/Token"
+import Node                from "parser/nodes/Node"
+import ParsingError        from "parser/nodes/ParsingError"
+import Parser              from "parser/Parser"
+import Pattern             from "parser/Pattern"
 
 
 enum TokenType {
@@ -17,7 +17,9 @@ enum TokenType {
 
 class Declaration implements Node {
     static readonly nodeName = "const-declaration"
-    static readonly pattern = new Pattern<TokenType>(Declaration.nodeName, (parser, provider) => {
+    static readonly pattern = new Pattern<TokenType>(Declaration.nodeName, (parser) => {
+        const provider = parser.provider
+
         provider.skip(TokenType.Space, TokenType.Tie)
 
         const keyword = provider.next()
@@ -37,18 +39,18 @@ class Declaration implements Node {
         return new Declaration(name)
     })
 
+    readonly nodes = []
+
     constructor(
         readonly name: Token<TokenType>
     ) {}
-
-    getAllNodes(): Node[] {
-        return []
-    }
 }
 
 class SumExpression implements Node {
     static readonly nodeName = "sum-expression"
-    static readonly pattern = new Pattern<TokenType>(SumExpression.nodeName, (parser, provider) => {
+    static readonly pattern = new Pattern<TokenType>(SumExpression.nodeName, (parser) => {
+        const provider = parser.provider
+
         provider.skip(TokenType.Space, TokenType.Tie)
 
         const left = provider.next()
@@ -75,14 +77,49 @@ class SumExpression implements Node {
         return new SumExpression(left, right)
     })
 
+    readonly nodes = []
+
     constructor(
         readonly left: Token<TokenType>,
         readonly right: Token<TokenType>
     ) {}
+}
 
-    getAllNodes(): Node[] {
-        return []
-    }
+class SumOfTwoSums implements Node {
+    static readonly nodeName = "sum-of-sums"
+    static readonly pattern = new Pattern<TokenType>(SumOfTwoSums.nodeName, (parser) => {
+        const provider = parser.provider
+
+        const left = parser.parse(SumExpression.pattern)
+                           .elseReturnError()
+        if (left instanceof Array) {
+            return new ParsingError(SumOfTwoSums.nodeName, [], provider.next(), left)
+        }
+
+        provider.skip(TokenType.Space, TokenType.Tie)
+
+        const operator = provider.next()
+        if (operator.type !== TokenType.Plus) {
+            return new ParsingError(SumExpression.nodeName, [TokenType.Plus], operator)
+        }
+
+        provider.skip(TokenType.Space, TokenType.Tie)
+
+        const right = parser.parse(SumExpression.pattern)
+                            .elseReturnError()
+        if (right instanceof Array) {
+            return new ParsingError(SumOfTwoSums.nodeName, [], provider.next(), right)
+        }
+
+        return new SumOfTwoSums(left as SumExpression, right as SumExpression)
+    })
+
+    readonly nodes = [this.left, this.right]
+
+    constructor(
+        readonly left: SumExpression,
+        readonly right: SumExpression
+    ) {}
 }
 
 describe("Valid expression", () => {
@@ -186,4 +223,49 @@ test("Parse two nodes", () => {
     expect(addition).toBeInstanceOf(SumExpression)
     expect((addition as SumExpression).left).toBe(tokens[4])
     expect((addition as SumExpression).right).toBe(tokens[6])
+})
+
+test("Parse nested nodes", () => {
+    const factory = new DefaultTokenFactory<TokenType>()
+    const tokens = [
+        factory.create(TokenType.Number, "10"),
+        factory.create(TokenType.Plus),
+        factory.create(TokenType.Number, "12"),
+        factory.create(TokenType.Plus),
+        factory.create(TokenType.Number, "4"),
+        factory.create(TokenType.Plus),
+        factory.create(TokenType.Number, "5")
+    ]
+    const parser = new Parser(tokens)
+
+    const sumOfSums = parser.parse(SumOfTwoSums.pattern)
+                            .elseReturnNull()
+
+    expect(sumOfSums).toEqual(new SumOfTwoSums(
+        new SumExpression(tokens[0], tokens[2]),
+        new SumExpression(tokens[4], tokens[6])
+    ))
+})
+
+test("Parse nested nodes with error", () => {
+    const factory = new DefaultTokenFactory<TokenType>()
+    const tokens = [
+        factory.create(TokenType.Number, "10"),
+        factory.create(TokenType.Plus),
+        factory.create(TokenType.Number, "12"),
+        factory.create(TokenType.Plus),
+        factory.create(TokenType.Name, "SomeConst"),
+        factory.create(TokenType.Plus),
+        factory.create(TokenType.Number, "5")
+    ]
+    const parser = new Parser(tokens)
+
+    const errors = parser.parse(SumOfTwoSums.pattern)
+                         .elseReturnError()
+
+    expect(errors).toEqual([
+        new ParsingError(SumOfTwoSums.nodeName, [], tokens[4], [
+            new ParsingError(SumExpression.nodeName, [TokenType.Number], tokens[4])
+        ])
+    ])
 })

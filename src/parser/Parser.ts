@@ -1,17 +1,21 @@
-import Token        from "lexer/Token"
-import Node         from "parser/nodes/Node"
-import ParsingError from "parser/nodes/ParsingError"
-import Pattern      from "parser/Pattern"
+import Token         from "lexer/Token"
+import Node          from "parser/nodes/Node"
+import ParsingError  from "parser/nodes/ParsingError"
+import Pattern       from "parser/Pattern"
 import TokenProvider from "parser/TokenProvider"
+import range         from "utils/range"
 
 
 export default class Parser<T> {
-    private viewed: number = 0
+    readonly provider
+
     private patterns: Pattern<T>[] = []
 
     constructor(
         private readonly tokens: Token<T>[]
-    ) {}
+    ) {
+        this.provider = new TokenProvider(this.tokens)
+    }
 
     parse(pattern: Pattern<T>): this {
         return this.orParse(pattern)
@@ -33,9 +37,11 @@ export default class Parser<T> {
     }
 
     elseReturnError(): Node | ParsingError<T>[] {
-        const errors: ParsingError<T>[] = []
+        const patterns = this.patterns
+        this.patterns = []
 
-        for (const pattern of this.patterns) {
+        const errors: ParsingError<T>[] = []
+        for (const pattern of patterns) {
             const result = this.tryApplyPattern(pattern)
             if (result instanceof ParsingError) {
                 errors.push(result)
@@ -48,14 +54,18 @@ export default class Parser<T> {
     }
 
     private tryApplyPattern(pattern: Pattern<T>): Node | ParsingError<T> {
-        const provider = new TokenProvider<T>(this.tokens.slice(this.viewed))
-        const result = pattern.parseFunction(this, provider)
+        const parser = new Parser(this.tokens.slice(this.provider.viewed))
+        const result = pattern.parseFunction(parser)
+        const viewed = parser.provider.viewed
 
         if (result instanceof ParsingError) {
             return result
         }
 
-        this.viewed += provider.viewed
+        for (const i of range(0, viewed)) {
+            this.provider.next()
+        }
+
         return result
     }
 }
